@@ -1,0 +1,86 @@
+<?php
+require_once 'config/database.php';
+require_once 'config/config.php';
+
+class UserController {
+    private $conn;
+
+    public function __construct() {
+        if (!isset($_SESSION['user_id'])) {
+            header("Location: index.php?page=login");
+            exit;
+        }
+        $database = new Database();
+        $this->conn = $database->getConnection();
+    }
+
+    public function dashboard() {
+        $stmt = $this->conn->prepare("SELECT * FROM sales WHERE user_id = ? ORDER BY id DESC LIMIT 10");
+        $stmt->execute([$_SESSION['user_id']]);
+        $my_sales = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        require_once 'views/layout/header.php';
+        require_once 'views/user/dashboard.php';
+        require_once 'views/layout/footer.php';
+    }
+
+    public function createSale() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+                die("CSRF Token Invalid");
+            }
+            $products_req = $_POST['products'] ?? [];
+            $quantities_req = $_POST['quantities'] ?? [];
+            
+            if (empty($products_req)) {
+                $error = "Debe seleccionar al menos un producto.";
+            } else {
+                try {
+                    $this->conn->beginTransaction();
+                    
+                    $stmt = $this->conn->prepare("INSERT INTO sales (user_id, total, status) VALUES (?, 0, 'pending')");
+                    $stmt->execute([$_SESSION['user_id']]);
+                    $sale_id = $this->conn->lastInsertId();
+                    
+                    $total = 0;
+                    foreach ($products_req as $index => $prod_id) {
+                        $qty = (int)$quantities_req[$index];
+                        if ($qty > 0) {
+                            $prod_stmt = $this->conn->prepare("SELECT price FROM products WHERE id = ? AND is_active = 1");
+                            $prod_stmt->execute([$prod_id]);
+                            $prod = $prod_stmt->fetch(PDO::FETCH_ASSOC);
+                            
+                            if ($prod) {
+                                $subtotal = $prod['price'] * $qty;
+                                $total += $subtotal;
+                                
+                                $det_stmt = $this->conn->prepare("INSERT INTO sale_details (sale_id, product_id, quantity, unit_price, subtotal) VALUES (?, ?, ?, ?, ?)");
+                                $det_stmt->execute([$sale_id, $prod_id, $qty, $prod['price'], $subtotal]);
+                            }
+                        }
+                    }
+                    
+                    $upd = $this->conn->prepare("UPDATE sales SET total = ? WHERE id = ?");
+                    $upd->execute([$total, $sale_id]);
+                    
+                    log_audit($this->conn, $_SESSION['user_id'], 'CREATE_SALE', "Generó factura #$sale_id por $$total");
+                    
+                    $this->conn->commit();
+                    header("Location: index.php?page=user_dashboard&success=1");
+                    exit;
+                } catch (Exception $e) {
+                    $this->conn->rollBack();
+                    $error = "Error al procesar la venta: " . $e->getMessage();
+                }
+            }
+        }
+
+        $stmt = $this->conn->query("SELECT id, name, price, stock FROM products WHERE is_active = 1 AND stock > 0");
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        require_once 'views/layout/header.php';
+        require_once 'views/user/create_sale.php';
+        require_once 'views/layout/footer.php';
+    }
+}
+?>
