@@ -21,6 +21,7 @@
                     <thead class="table-dark">
                         <tr>
                             <th>ID</th>
+                            <th>Imagen</th>
                             <th>Nombre</th>
                             <th>Precio</th>
                             <th>Stock Actual</th>
@@ -32,6 +33,13 @@
                         <?php foreach ($products as $p): ?>
                         <tr>
                             <td><?= $p['id'] ?></td>
+                            <td>
+                                <?php if($p['image_url']): ?>
+                                    <img src="<?= htmlspecialchars($p['image_url']) ?>" alt="Img" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                                <?php else: ?>
+                                    <div class="bg-light text-center text-muted" style="width: 50px; height: 50px; line-height: 50px; border-radius: 5px;"><i class="bi bi-image"></i></div>
+                                <?php endif; ?>
+                            </td>
                             <td class="fw-bold"><?= htmlspecialchars($p['name']) ?></td>
                             <td>$<?= number_format($p['price'], 2) ?></td>
                             <td>
@@ -69,7 +77,7 @@
 <div class="modal fade" id="createProductModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="index.php?page=admin_products" method="POST">
+            <form action="index.php?page=admin_products" method="POST" enctype="multipart/form-data">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title">Registrar Nuevo Producto</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -89,6 +97,15 @@
                     <div class="mb-3">
                         <label class="form-label">Stock Inicial</label>
                         <input type="number" name="stock" class="form-control" required value="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Subir Imagen Local</label>
+                        <input type="file" name="image_file" class="form-control" accept="image/*">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">O URL de Imagen (opcional)</label>
+                        <input type="url" name="image_link" class="form-control" placeholder="https://ejemplo.com/imagen.jpg">
+                        <small class="text-muted">Si subes un archivo, este campo será ignorado.</small>
                     </div>
                 </div>
                 <div class="modal-footer">

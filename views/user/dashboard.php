@@ -5,6 +5,36 @@
     <div class="alert alert-success"><i class="bi bi-check-circle"></i> Factura enviada al administrador exitosamente.</div>
     <?php endif; ?>
 
+    <!-- Nueva sección de Metas -->
+    <div class="row mt-4">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm border-info">
+                <div class="card-header bg-info text-white fw-bold">
+                    <i class="bi bi-bullseye"></i> Mi Meta Mensual de Ventas
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Progreso Actual: <strong>$<?= number_format($current_sales, 2) ?></strong></span>
+                        <span>Meta: <strong>$<?= number_format($monthly_goal, 2) ?></strong></span>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar <?= $goal_percentage >= 100 ? 'bg-success' : 'bg-primary' ?> progress-bar-striped progress-bar-animated" 
+                             role="progressbar" 
+                             style="width: <?= $goal_percentage ?>%;" 
+                             aria-valuenow="<?= $goal_percentage ?>" aria-valuemin="0" aria-valuemax="100">
+                            <?= number_format($goal_percentage, 1) ?>%
+                        </div>
+                    </div>
+                    <?php if($goal_percentage >= 100 && $monthly_goal > 0): ?>
+                        <div class="mt-2 text-success fw-bold"><i class="bi bi-trophy-fill text-warning"></i> ¡Felicidades! Has alcanzado tu meta mensual.</div>
+                    <?php elseif($monthly_goal == 0): ?>
+                        <div class="mt-2 text-muted">No tienes una meta asignada para este mes.</div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="mt-4">
         <h4>Mis Últimas Facturas Generadas</h4>
         <div class="card shadow-sm">
@@ -17,6 +47,7 @@
                                 <th>Fecha</th>
                                 <th>Monto Total</th>
                                 <th>Estado</th>
+                                <th class="text-end">Opciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -34,10 +65,15 @@
                                         <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Rechazada</span>
                                     <?php endif; ?>
                                 </td>
+                                <td class="text-end">
+                                    <a href="index.php?page=view_invoice&id=<?= $s['id'] ?>" class="btn btn-sm btn-outline-danger" target="_blank">
+                                        <i class="bi bi-file-earmark-pdf"></i> Ver Factura/PDF
+                                    </a>
+                                </td>
                             </tr>
                             <?php endforeach; ?>
                             <?php if(empty($my_sales)): ?>
-                                <tr><td colspan="4" class="text-center text-muted">Aún no has generado facturas.</td></tr>
+                                <tr><td colspan="5" class="text-center text-muted">Aún no has generado facturas.</td></tr>
                             <?php endif; ?>
                         </tbody>
                     </table>

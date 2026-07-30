@@ -32,13 +32,16 @@
                                 <?php endif; ?>
                             </td>
                             <td class="text-end">
+                                <a href="index.php?page=view_invoice&id=<?= $s['id'] ?>" class="btn btn-sm btn-outline-danger" target="_blank" title="Ver Factura PDF">
+                                    <i class="bi bi-file-earmark-pdf"></i> PDF
+                                </a>
                                 <?php if($s['status'] === 'pending'): ?>
                                     <form action="index.php?page=admin_sales" method="POST" class="d-inline">
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                         <input type="hidden" name="action" value="approve">
                                         <input type="hidden" name="sale_id" value="<?= $s['id'] ?>">
                                         <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('¿Aprobar factura y descontar el stock de los productos?');">
-                                            <i class="bi bi-check-lg"></i> Aprobar
+                                            <i class="bi bi-check-lg"></i>
                                         </button>
                                     </form>
                                     <form action="index.php?page=admin_sales" method="POST" class="d-inline">
@@ -46,11 +49,11 @@
                                         <input type="hidden" name="action" value="reject">
                                         <input type="hidden" name="sale_id" value="<?= $s['id'] ?>">
                                         <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Rechazar factura? (NO se descontará stock)');">
-                                            <i class="bi bi-x-lg"></i> Rechazar
+                                            <i class="bi bi-x-lg"></i>
                                         </button>
                                     </form>
                                 <?php else: ?>
-                                    <button class="btn btn-sm btn-secondary" disabled>Procesada</button>
+                                    <button class="btn btn-sm btn-secondary" disabled><i class="bi bi-check-all"></i></button>
                                 <?php endif; ?>
                             </td>
                         </tr>

@@ -12,8 +12,9 @@
                 <thead class="table-dark">
                     <tr>
                         <th>ID</th>
-                        <th>Nombre de Usuario</th>
+                        <th>Nombre / Email</th>
                         <th>Rol</th>
+                        <th>Meta Mensual</th>
                         <th>Fecha Creación</th>
                         <th>Estado</th>
                         <th class="text-end">Acciones</th>
@@ -23,13 +24,21 @@
                     <?php foreach ($users as $u): ?>
                     <tr>
                         <td><?= $u['id'] ?></td>
-                        <td class="fw-bold"><?= htmlspecialchars($u['username']) ?></td>
+                        <td>
+                            <div class="fw-bold"><?= htmlspecialchars($u['username']) ?></div>
+                            <div class="text-muted small"><?= htmlspecialchars($u['email'] ?? 'Sin email') ?></div>
+                        </td>
                         <td>
                             <?php if($u['role'] === 'admin'): ?>
                                 <span class="badge bg-primary">Administrador</span>
+                            <?php elseif($u['role'] === 'transporter'): ?>
+                                <span class="badge bg-warning text-dark"><i class="bi bi-truck"></i> Transportista</span>
                             <?php else: ?>
                                 <span class="badge bg-info text-dark">Vendedor</span>
                             <?php endif; ?>
+                        </td>
+                        <td>
+                            $<?= number_format($u['monthly_goal'], 2) ?>
                         </td>
                         <td><?= $u['created_at'] ?></td>
                         <td>
@@ -37,6 +46,10 @@
                         </td>
                         <td class="text-end">
                             <?php if($u['id'] !== $_SESSION['user_id']): ?>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editGoalModal<?= $u['id'] ?>">
+                                    <i class="bi bi-pencil"></i> Meta
+                                </button>
+
                                 <form action="index.php?page=admin_users" method="POST" class="d-inline">
                                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                     <input type="hidden" name="action" value="toggle_status">
@@ -47,6 +60,33 @@
                                         <?= $u['is_active'] ? 'Inhabilitar' : 'Habilitar' ?>
                                     </button>
                                 </form>
+                                
+                                <!-- Modal Edit Goal -->
+                                <div class="modal fade" id="editGoalModal<?= $u['id'] ?>" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form action="index.php?page=admin_users" method="POST">
+                                                <div class="modal-header bg-primary text-white text-start">
+                                                    <h5 class="modal-title">Editar Meta para <?= htmlspecialchars($u['username']) ?></h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body text-start">
+                                                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                                    <input type="hidden" name="action" value="edit_goal">
+                                                    <input type="hidden" name="user_id" value="<?= $u['id'] ?>">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Meta Mensual ($)</label>
+                                                        <input type="number" step="0.01" name="monthly_goal" class="form-control" value="<?= $u['monthly_goal'] ?>" required>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <button type="submit" class="btn btn-primary">Guardar Meta</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             <?php else: ?>
                                 <span class="text-muted small">Tú (No editable)</span>
                             <?php endif; ?>
@@ -77,6 +117,10 @@
                         <input type="text" name="username" class="form-control" required autocomplete="off">
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Email (Requerido para Tickets)</label>
+                        <input type="email" name="email" class="form-control" required autocomplete="off">
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Contraseña Temporal</label>
                         <input type="password" name="password" class="form-control" required>
                     </div>
@@ -84,8 +128,13 @@
                         <label class="form-label">Rol del Sistema</label>
                         <select name="role" class="form-select" required>
                             <option value="user">Vendedor (Usuario Estándar)</option>
+                            <option value="transporter">Transportista (Logística)</option>
                             <option value="admin">Administrador (Control Total)</option>
                         </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Meta Mensual de Ventas ($) (Opcional)</label>
+                        <input type="number" step="0.01" name="monthly_goal" class="form-control" value="0.00">
                     </div>
                 </div>
                 <div class="modal-footer">

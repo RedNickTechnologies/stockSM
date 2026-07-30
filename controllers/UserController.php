@@ -19,8 +19,27 @@ class UserController {
         $stmt->execute([$_SESSION['user_id']]);
         $my_sales = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        $u_stmt = $this->conn->prepare("SELECT monthly_goal FROM users WHERE id = ?");
+        $u_stmt->execute([$_SESSION['user_id']]);
+        $monthly_goal = (float)$u_stmt->fetchColumn();
+
+        $prog_stmt = $this->conn->prepare("SELECT SUM(total) FROM sales WHERE user_id = ? AND status = 'approved' AND MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())");
+        $prog_stmt->execute([$_SESSION['user_id']]);
+        $current_sales = (float)$prog_stmt->fetchColumn();
+
+        $goal_percentage = $monthly_goal > 0 ? min(100, ($current_sales / $monthly_goal) * 100) : 0;
+
         require_once 'views/layout/header.php';
         require_once 'views/user/dashboard.php';
+        require_once 'views/layout/footer.php';
+    }
+
+    public function products() {
+        $stmt = $this->conn->query("SELECT * FROM products WHERE is_active = 1 ORDER BY name ASC");
+        $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        require_once 'views/layout/header.php';
+        require_once 'views/user/products.php';
         require_once 'views/layout/footer.php';
     }
 

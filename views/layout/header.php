@@ -34,16 +34,48 @@
                         <a class="nav-link" href="index.php?page=admin_dashboard">Dashboard</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="index.php?page=admin_logistics">Logística</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?page=admin_fleet">Flota y Gastos</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="index.php?page=admin_users">Usuarios</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="index.php?page=admin_products">Productos</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="index.php?page=admin_sales">Facturas</a>
+                        <a class="nav-link" href="index.php?page=admin_sales">Ventas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?page=admin_ddjj">Balances (DDJJ)</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?page=admin_audit">Auditoría</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="index.php?page=admin_audit">Caja de Seguridad</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?page=admin_tickets">Tickets</a>
+                    </li>
+                <?php elseif ($_SESSION['role'] === 'transporter'): ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?page=transporter_dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?page=transporter_tickets">Soporte</a>
+                    </li>
+                <?php elseif ($_SESSION['role'] === 'accountant'): ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?page=accountant_dashboard">Dashboard Contador</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?page=accountant_sales">Ventas y ARCA</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?page=accountant_ddjj">Balances / DDJJ</a>
                     </li>
                 <?php else: ?>
                     <li class="nav-item">
@@ -51,6 +83,12 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="index.php?page=user_sale">Nueva Venta</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?page=user_products">Catálogo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?page=user_tickets">Soporte</a>
                     </li>
                 <?php endif; ?>
             </ul>
