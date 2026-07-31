@@ -17,10 +17,16 @@ class AdminController {
     public function dashboard() {
         $stats = [];
         $stats['users'] = $this->conn->query("SELECT COUNT(*) FROM users")->fetchColumn();
-        $stats['products'] = $this->conn->query("SELECT COUNT(*) FROM products WHERE is_active=1")->fetchColumn();
-        $stats['pending_sales'] = $this->conn->query("SELECT COUNT(*) FROM sales WHERE status='pending'")->fetchColumn();
+        $stmt = $this->conn->query("SELECT COUNT(*) FROM products WHERE is_active = 1");
+        $stats['products'] = $stmt->fetchColumn();
 
-        // Chart 1: Sales over the last 30 days (by day)
+        $stmt = $this->conn->query("SELECT COUNT(*) FROM sales WHERE status = 'pending'");
+        $stats['pending_sales'] = $stmt->fetchColumn();
+
+        $stmt = $this->conn->query("SELECT COUNT(*) FROM vehicles");
+        $stats['vehicles'] = $stmt->fetchColumn();
+
+        // Data para gráficos over the last 30 days (by day)
         $chart_sales = $this->conn->query("
             SELECT DATE(created_at) as date, SUM(total) as total
             FROM sales
@@ -325,6 +331,36 @@ class AdminController {
 
         require_once 'views/layout/header.php';
         require_once 'views/admin/ddjj.php';
+        require_once 'views/layout/footer.php';
+    }
+
+    public function tickets() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) die("CSRF Token Invalid");
+            
+            if ($_POST['action'] === 'reply_ticket') {
+                $ticket_id = $_POST['ticket_id'];
+                $reply = $_POST['admin_reply'];
+                $status = 'answered';
+                
+                $stmt = $this->conn->prepare("UPDATE tickets SET admin_reply = ?, status = ? WHERE id = ?");
+                $stmt->execute([$reply, $status, $ticket_id]);
+                log_audit($this->conn, $_SESSION['user_id'], 'REPLY_TICKET', "Respondió ticket #$ticket_id");
+            } elseif ($_POST['action'] === 'close_ticket') {
+                $ticket_id = $_POST['ticket_id'];
+                $stmt = $this->conn->prepare("UPDATE tickets SET status = 'closed' WHERE id = ?");
+                $stmt->execute([$ticket_id]);
+                log_audit($this->conn, $_SESSION['user_id'], 'CLOSE_TICKET', "Cerró ticket #$ticket_id");
+            }
+            header("Location: index.php?page=admin_tickets");
+            exit;
+        }
+
+        $stmt = $this->conn->query("SELECT t.*, u.username, u.role FROM tickets t JOIN users u ON t.user_id = u.id ORDER BY FIELD(t.status, 'open', 'answered', 'closed'), t.id DESC");
+        $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        require_once 'views/layout/header.php';
+        require_once 'views/admin/tickets.php';
         require_once 'views/layout/footer.php';
     }
 }

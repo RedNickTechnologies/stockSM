@@ -52,13 +52,10 @@
                         <a class="nav-link" href="index.php?page=admin_ddjj">Balances (DDJJ)</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="index.php?page=admin_audit">Auditoría</a>
+                        <a class="nav-link" href="index.php?page=admin_audit">Auditoría / Logs</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="index.php?page=admin_audit">Caja de Seguridad</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php?page=admin_tickets">Tickets</a>
+                        <a class="nav-link" href="index.php?page=admin_tickets">Tickets (Soporte)</a>
                     </li>
                 <?php elseif ($_SESSION['role'] === 'transporter'): ?>
                     <li class="nav-item">

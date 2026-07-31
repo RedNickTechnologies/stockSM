@@ -66,9 +66,45 @@
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-end">
-                                    <a href="index.php?page=view_invoice&id=<?= $s['id'] ?>" class="btn btn-sm btn-outline-danger" target="_blank">
-                                        <i class="bi bi-file-earmark-pdf"></i> Ver Factura/PDF
-                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#saleModal<?= $s['id'] ?>">
+                                    <i class="bi bi-eye"></i> Detalles
+                                </button>
+                                <a href="index.php?page=view_invoice&id=<?= $s['id'] ?>" class="btn btn-sm btn-outline-danger" target="_blank">
+                                    <i class="bi bi-file-earmark-pdf"></i> PDF
+                                </a>
+
+                                <!-- Detalles Modal -->
+                                <div class="modal fade text-start" id="saleModal<?= $s['id'] ?>" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-dark text-white">
+                                                <h5 class="modal-title">Detalle de Venta #<?= str_pad($s['id'], 6, '0', STR_PAD_LEFT) ?></h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <table class="table table-sm">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Producto</th>
+                                                            <th class="text-center">Cant.</th>
+                                                            <th class="text-end">Subtotal</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php foreach($s['details'] as $detail): ?>
+                                                        <tr>
+                                                            <td><?= htmlspecialchars($detail['name']) ?></td>
+                                                            <td class="text-center"><?= $detail['quantity'] ?></td>
+                                                            <td class="text-end">$<?= number_format($detail['subtotal'], 2) ?></td>
+                                                        </tr>
+                                                        <?php endforeach; ?>
+                                                    </tbody>
+                                                </table>
+                                                <h4 class="text-end fw-bold mt-3 text-primary">Total: $<?= number_format($s['total'], 2) ?></h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 </td>
                             </tr>
                             <?php endforeach; ?>

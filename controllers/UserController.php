@@ -19,6 +19,13 @@ class UserController {
         $stmt->execute([$_SESSION['user_id']]);
         $my_sales = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        // Fetch details for each sale
+        foreach ($my_sales as &$sale) {
+            $d_stmt = $this->conn->prepare("SELECT td.quantity, td.subtotal, p.name FROM sale_details td JOIN products p ON td.product_id = p.id WHERE td.sale_id = ?");
+            $d_stmt->execute([$sale['id']]);
+            $sale['details'] = $d_stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
         $u_stmt = $this->conn->prepare("SELECT monthly_goal FROM users WHERE id = ?");
         $u_stmt->execute([$_SESSION['user_id']]);
         $monthly_goal = (float)$u_stmt->fetchColumn();
@@ -99,6 +106,30 @@ class UserController {
 
         require_once 'views/layout/header.php';
         require_once 'views/user/create_sale.php';
+        require_once 'views/layout/footer.php';
+    }
+
+    public function tickets() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) die("CSRF Token Invalid");
+            
+            if ($_POST['action'] === 'create_ticket') {
+                $subject = $_POST['subject'];
+                $message = $_POST['message'];
+                
+                $stmt = $this->conn->prepare("INSERT INTO tickets (user_id, subject, message) VALUES (?, ?, ?)");
+                $stmt->execute([$_SESSION['user_id'], $subject, $message]);
+            }
+            header("Location: index.php?page=user_tickets");
+            exit;
+        }
+
+        $stmt = $this->conn->prepare("SELECT * FROM tickets WHERE user_id = ? ORDER BY id DESC");
+        $stmt->execute([$_SESSION['user_id']]);
+        $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        require_once 'views/layout/header.php';
+        require_once 'views/user/tickets.php';
         require_once 'views/layout/footer.php';
     }
 }

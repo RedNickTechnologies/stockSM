@@ -31,6 +31,8 @@
                         <td>
                             <?php if($u['role'] === 'admin'): ?>
                                 <span class="badge bg-primary">Administrador</span>
+                            <?php elseif($u['role'] === 'accountant'): ?>
+                                <span class="badge bg-success text-white"><i class="bi bi-calculator"></i> Contador</span>
                             <?php elseif($u['role'] === 'transporter'): ?>
                                 <span class="badge bg-warning text-dark"><i class="bi bi-truck"></i> Transportista</span>
                             <?php else: ?>
@@ -129,6 +131,7 @@
                         <select name="role" class="form-select" required>
                             <option value="user">Vendedor (Usuario Estándar)</option>
                             <option value="transporter">Transportista (Logística)</option>
+                            <option value="accountant">Contador (Balances y Facturación)</option>
                             <option value="admin">Administrador (Control Total)</option>
                         </select>
                     </div>
