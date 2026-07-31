@@ -18,9 +18,14 @@
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Flota de la Empresa</h5>
-            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createVehicleModal">
-                <i class="bi bi-plus-lg"></i> Añadir Vehículo
-            </button>
+            <div>
+                <a href="index.php?page=export_vehicles_pdf" target="_blank" class="btn btn-sm btn-outline-light me-2">
+                    <i class="bi bi-file-earmark-pdf"></i> Exportar a PDF
+                </a>
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createVehicleModal">
+                    <i class="bi bi-plus-lg"></i> Añadir Vehículo
+                </button>
+            </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">

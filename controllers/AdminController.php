@@ -116,6 +116,20 @@ class AdminController {
                 $stmt = $this->conn->prepare("INSERT INTO products (name, price, stock, image_url) VALUES (?, ?, ?, ?)");
                 $stmt->execute([$name, $price, $stock, $image_url]);
                 log_audit($this->conn, $_SESSION['user_id'], 'CREATE_PRODUCT', "Creó producto: $name");
+            } elseif ($_POST['action'] === 'edit_product') {
+                $id = $_POST['product_id'];
+                $name = $_POST['name'];
+                $price = $_POST['price'];
+                $stock = $_POST['stock'];
+
+                $stmt = $this->conn->prepare("UPDATE products SET name = ?, price = ?, stock = ? WHERE id = ?");
+                $stmt->execute([$name, $price, $stock, $id]);
+                log_audit($this->conn, $_SESSION['user_id'], 'EDIT_PRODUCT', "Editó producto ID $id ($name)");
+            } elseif ($_POST['action'] === 'delete_product') {
+                $id = $_POST['product_id'];
+                $stmt = $this->conn->prepare("UPDATE products SET is_active = 0 WHERE id = ?");
+                $stmt->execute([$id]);
+                log_audit($this->conn, $_SESSION['user_id'], 'DELETE_PRODUCT', "Deshabilitó producto ID $id");
             } elseif ($_POST['action'] === 'toggle_status') {
                 $id = $_POST['product_id'];
                 $status = $_POST['status'] == '1' ? 0 : 1;
@@ -361,6 +375,66 @@ class AdminController {
 
         require_once 'views/layout/header.php';
         require_once 'views/admin/tickets.php';
+        require_once 'views/layout/footer.php';
+    }
+
+    public function exportUsersPDF() {
+        $stmt = $this->conn->query("SELECT * FROM users ORDER BY id DESC");
+        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        require_once 'views/admin/pdf_users.php';
+    }
+
+    public function exportAuditPDF() {
+        $stmt = $this->conn->query("SELECT a.*, u.username FROM audit_logs a LEFT JOIN users u ON a.user_id = u.id ORDER BY a.id DESC LIMIT 1000");
+        $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        require_once 'views/admin/pdf_audit.php';
+    }
+
+    public function exportVehiclesPDF() {
+        $stmt = $this->conn->query("SELECT * FROM vehicles ORDER BY id DESC");
+        $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        require_once 'views/admin/pdf_vehicles.php';
+    }
+
+    public function monthlyReports() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'generate') {
+            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) die("CSRF Token Invalid");
+
+            $month = (int)date('m');
+            $year = (int)date('Y');
+
+            // Check if already exists
+            $stmt = $this->conn->prepare("SELECT id FROM company_monthly_reports WHERE month = ? AND year = ?");
+            $stmt->execute([$month, $year]);
+            if (!$stmt->fetch()) {
+                // Calculate metrics
+                $sales_stmt = $this->conn->prepare("SELECT SUM(total) as amount, COUNT(id) as count FROM sales WHERE status = 'approved' AND MONTH(created_at) = ? AND YEAR(created_at) = ?");
+                $sales_stmt->execute([$month, $year]);
+                $sales = $sales_stmt->fetch(PDO::FETCH_ASSOC);
+                $total_amount = $sales['amount'] ?: 0;
+                $total_count = $sales['count'] ?: 0;
+
+                $users_stmt = $this->conn->prepare("SELECT COUNT(id) FROM users WHERE MONTH(created_at) = ? AND YEAR(created_at) = ?");
+                $users_stmt->execute([$month, $year]);
+                $new_users = $users_stmt->fetchColumn() ?: 0;
+
+                $exp_stmt = $this->conn->prepare("SELECT SUM(estimated_cost) FROM vehicle_requests WHERE status IN ('approved', 'completed') AND is_own_vehicle = 1 AND MONTH(created_at) = ? AND YEAR(created_at) = ?");
+                $exp_stmt->execute([$month, $year]);
+                $total_expenses = $exp_stmt->fetchColumn() ?: 0;
+
+                $ins = $this->conn->prepare("INSERT INTO company_monthly_reports (month, year, total_sales_amount, total_sales_count, new_users_count, total_expenses) VALUES (?, ?, ?, ?, ?, ?)");
+                $ins->execute([$month, $year, $total_amount, $total_count, $new_users, $total_expenses]);
+                log_audit($this->conn, $_SESSION['user_id'], 'GENERATE_REPORT', "Generó reporte mensual de $month/$year");
+            }
+            header("Location: index.php?page=admin_reports");
+            exit;
+        }
+
+        $stmt = $this->conn->query("SELECT * FROM company_monthly_reports ORDER BY year DESC, month DESC");
+        $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        require_once 'views/layout/header.php';
+        require_once 'views/admin/reports.php';
         require_once 'views/layout/footer.php';
     }
 }

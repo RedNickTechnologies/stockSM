@@ -33,7 +33,7 @@ class InvoiceController {
             die("Factura no encontrada");
         }
 
-        if ($_SESSION['role'] !== 'admin' && $sale['user_id'] !== $_SESSION['user_id']) {
+        if ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'accountant' && $sale['user_id'] !== $_SESSION['user_id']) {
             die("No tienes permiso para ver esta factura.");
         }
 

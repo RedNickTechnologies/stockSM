@@ -96,6 +96,13 @@ class TransporterController {
         $tr_stmt->execute([$_SESSION['user_id']]);
         $transfers = $tr_stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        $vreq_stmt = $this->conn->prepare("SELECT vr.*, v.brand, v.model, v.license_plate, v.weight_capacity FROM vehicle_requests vr LEFT JOIN vehicles v ON vr.vehicle_id = v.id WHERE vr.transporter_id = ? AND vr.status IN ('pending', 'approved') ORDER BY vr.id DESC LIMIT 1");
+        $vreq_stmt->execute([$_SESSION['user_id']]);
+        $active_vehicle_request = $vreq_stmt->fetch(PDO::FETCH_ASSOC);
+
+        $veh_stmt = $this->conn->query("SELECT * FROM vehicles WHERE status = 'available'");
+        $available_vehicles = $veh_stmt->fetchAll(PDO::FETCH_ASSOC);
+
         require_once 'views/layout/header.php';
         require_once 'views/transporter/dashboard.php';
         require_once 'views/layout/footer.php';

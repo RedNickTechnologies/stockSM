@@ -1,6 +1,9 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-shield-lock-fill text-danger"></i> Caja de Seguridad (Auditoría)</h2>
+        <h2><i class="bi bi-shield-lock-fill text-danger"></i> Caja de Seguridad (Log de Auditoría)</h2>
+        <a href="index.php?page=export_audit_pdf" target="_blank" class="btn btn-outline-danger">
+            <i class="bi bi-file-earmark-pdf"></i> Exportar Logs a PDF
+        </a>
     </div>
     
     <div class="alert alert-info">

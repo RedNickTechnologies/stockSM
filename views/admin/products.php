@@ -53,16 +53,64 @@
                                 <?= $p['is_active'] ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-secondary">Inactivo</span>' ?>
                             </td>
                             <td class="no-export text-end">
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProductModal<?= $p['id'] ?>">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
                                 <form action="index.php?page=admin_products" method="POST" class="d-inline">
                                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                     <input type="hidden" name="action" value="toggle_status">
                                     <input type="hidden" name="product_id" value="<?= $p['id'] ?>">
                                     <input type="hidden" name="status" value="<?= $p['is_active'] ?>">
-                                    <button type="submit" class="btn btn-sm <?= $p['is_active'] ? 'btn-outline-danger' : 'btn-outline-success' ?>">
-                                        <i class="bi <?= $p['is_active'] ? 'bi-lock' : 'bi-unlock' ?>"></i>
-                                        <?= $p['is_active'] ? 'Inhabilitar' : 'Habilitar' ?>
+                                    <button type="submit" class="btn btn-sm <?= $p['is_active'] ? 'btn-outline-warning' : 'btn-outline-success' ?>" title="<?= $p['is_active'] ? 'Pausar' : 'Reactivar' ?>">
+                                        <i class="bi <?= $p['is_active'] ? 'bi-pause-circle' : 'bi-play-circle' ?>"></i>
                                     </button>
                                 </form>
+                                <?php if($p['is_active']): ?>
+                                <form action="index.php?page=admin_products" method="POST" class="d-inline" onsubmit="return confirm('¿Seguro que deseas eliminar lógicamente este producto?');">
+                                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                    <input type="hidden" name="action" value="delete_product">
+                                    <input type="hidden" name="product_id" value="<?= $p['id'] ?>">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                                <?php endif; ?>
+
+                                <!-- Modal Edit Product -->
+                                <div class="modal fade text-start" id="editProductModal<?= $p['id'] ?>" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form action="index.php?page=admin_products" method="POST">
+                                                <div class="modal-header bg-primary text-white">
+                                                    <h5 class="modal-title">Editar Producto #<?= $p['id'] ?></h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                                    <input type="hidden" name="action" value="edit_product">
+                                                    <input type="hidden" name="product_id" value="<?= $p['id'] ?>">
+                                                    
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Nombre del Producto</label>
+                                                        <input type="text" name="name" class="form-control" value="<?= htmlspecialchars($p['name']) ?>" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Precio Unitario ($)</label>
+                                                        <input type="number" step="0.01" name="price" class="form-control" value="<?= $p['price'] ?>" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Stock Actual</label>
+                                                        <input type="number" name="stock" class="form-control" value="<?= $p['stock'] ?>" required>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                         <?php endforeach; ?>

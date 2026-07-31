@@ -37,7 +37,11 @@ switch ($page) {
     case 'admin_products':
     case 'admin_sales':
     case 'admin_audit':
+    case 'admin_reports':
     case 'export_products_pdf':
+    case 'export_users_pdf':
+    case 'export_audit_pdf':
+    case 'export_vehicles_pdf':
         require_once 'controllers/AdminController.php';
         $controller = new AdminController();
         if ($page == 'admin_dashboard') $controller->dashboard();
@@ -45,7 +49,11 @@ switch ($page) {
         elseif ($page == 'admin_products') $controller->products();
         elseif ($page == 'admin_sales') $controller->sales();
         elseif ($page == 'admin_audit') $controller->auditLogs();
+        elseif ($page == 'admin_reports') $controller->monthlyReports();
         elseif ($page == 'export_products_pdf') $controller->exportProductsPDF();
+        elseif ($page == 'export_users_pdf') $controller->exportUsersPDF();
+        elseif ($page == 'export_audit_pdf') $controller->exportAuditPDF();
+        elseif ($page == 'export_vehicles_pdf') $controller->exportVehiclesPDF();
         break;
 
     case 'user_dashboard':

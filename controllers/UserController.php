@@ -26,15 +26,33 @@ class UserController {
             $sale['details'] = $d_stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
-        $u_stmt = $this->conn->prepare("SELECT monthly_goal FROM users WHERE id = ?");
+        $u_stmt = $this->conn->prepare("SELECT created_at, monthly_goal FROM users WHERE id = ?");
         $u_stmt->execute([$_SESSION['user_id']]);
-        $monthly_goal = (float)$u_stmt->fetchColumn();
+        $user_data = $u_stmt->fetch(PDO::FETCH_ASSOC);
+        $monthly_goal = (float)$user_data['monthly_goal'];
+        $created_at = $user_data['created_at'];
 
-        $prog_stmt = $this->conn->prepare("SELECT SUM(total) FROM sales WHERE user_id = ? AND status = 'approved' AND MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())");
+        $prog_stmt = $this->conn->prepare("SELECT SUM(total) as amount, COUNT(id) as count FROM sales WHERE user_id = ? AND status = 'approved' AND MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())");
         $prog_stmt->execute([$_SESSION['user_id']]);
-        $current_sales = (float)$prog_stmt->fetchColumn();
+        $prog_data = $prog_stmt->fetch(PDO::FETCH_ASSOC);
+        
+        $current_sales = (float)$prog_data['amount'];
+        $current_count = (int)$prog_data['count'];
 
         $goal_percentage = $monthly_goal > 0 ? min(100, ($current_sales / $monthly_goal) * 100) : 0;
+
+        // Update password logic
+        $password_msg = '';
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_password') {
+            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) die("CSRF Token Invalid");
+            
+            $new_pass = $_POST['new_password'];
+            $hash = password_hash($new_pass, PASSWORD_DEFAULT);
+            $stmt = $this->conn->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
+            $stmt->execute([$hash, $_SESSION['user_id']]);
+            $password_msg = 'Contraseña actualizada correctamente.';
+            log_audit($this->conn, $_SESSION['user_id'], 'UPDATE_PASSWORD', "El usuario cambió su contraseña");
+        }
 
         require_once 'views/layout/header.php';
         require_once 'views/user/dashboard.php';

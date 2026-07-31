@@ -52,6 +52,9 @@
                         <a class="nav-link" href="index.php?page=admin_ddjj">Balances (DDJJ)</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="index.php?page=admin_reports">Reportes</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="index.php?page=admin_audit">Auditoría / Logs</a>
                     </li>
                     <li class="nav-item">

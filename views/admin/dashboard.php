@@ -1,5 +1,17 @@
 <div class="container mt-4">
-    <h2>Dashboard del Administrador</h2>
+    <div class="d-flex justify-content-between align-items-center">
+        <h2>Dashboard del Administrador</h2>
+        <button class="btn btn-outline-danger" onclick="window.print()">
+            <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+        </button>
+    </div>
+    
+    <style>
+        @media print {
+            .btn, .navbar { display: none !important; }
+            body { font-size: 12pt; }
+        }
+    </style>
     
     <div class="row mt-4">
         <div class="col-md-3 mb-3">

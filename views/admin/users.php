@@ -1,9 +1,14 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Gestión de Usuarios</h2>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
-            <i class="bi bi-person-plus"></i> Nuevo Usuario
-        </button>
+        <div>
+            <a href="index.php?page=export_users_pdf" target="_blank" class="btn btn-outline-danger me-2">
+                <i class="bi bi-file-earmark-pdf"></i> Exportar a PDF
+            </a>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
+                <i class="bi bi-person-plus"></i> Nuevo Usuario
+            </button>
+        </div>
     </div>
 
     <div class="card shadow-sm">

@@ -1,9 +1,9 @@
 <?php
+require_once 'config/database.php';
 class AccountantController {
     private $conn;
 
     public function __construct() {
-        require_once 'config.php';
         $database = new Database();
         $this->conn = $database->getConnection();
         
