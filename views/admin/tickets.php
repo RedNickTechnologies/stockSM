@@ -53,43 +53,43 @@
                                     </button>
                                 </form>
                                 <?php endif; ?>
+
+                                <!-- Modal Responder -->
+                                <div class="modal fade text-start" id="replyModal<?= $t['id'] ?>" tabindex="-1">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <form action="index.php?page=admin_tickets" method="POST">
+                                                <div class="modal-header bg-dark text-white">
+                                                    <h5 class="modal-title">Ticket #<?= $t['id'] ?> - <?= htmlspecialchars($t['subject']) ?></h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                                    <input type="hidden" name="action" value="reply_ticket">
+                                                    <input type="hidden" name="ticket_id" value="<?= $t['id'] ?>">
+        
+                                                    <div class="mb-3">
+                                                        <h6 class="text-muted">Mensaje del Usuario (<?= htmlspecialchars($t['username']) ?>):</h6>
+                                                        <div class="p-3 bg-light border rounded">
+                                                            <?= nl2br(htmlspecialchars($t['message'])) ?>
+                                                        </div>
+                                                    </div>
+        
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bold">Tu Respuesta:</label>
+                                                        <textarea name="admin_reply" class="form-control" rows="5" required placeholder="Escribe tu respuesta aquí..."><?= htmlspecialchars($t['admin_reply'] ?? '') ?></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i> Guardar Respuesta</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
-
-                        <!-- Modal Responder -->
-                        <div class="modal fade text-start" id="replyModal<?= $t['id'] ?>" tabindex="-1">
-                            <div class="modal-dialog modal-lg">
-                                <div class="modal-content">
-                                    <form action="index.php?page=admin_tickets" method="POST">
-                                        <div class="modal-header bg-dark text-white">
-                                            <h5 class="modal-title">Ticket #<?= $t['id'] ?> - <?= htmlspecialchars($t['subject']) ?></h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                                            <input type="hidden" name="action" value="reply_ticket">
-                                            <input type="hidden" name="ticket_id" value="<?= $t['id'] ?>">
-
-                                            <div class="mb-3">
-                                                <h6 class="text-muted">Mensaje del Usuario (<?= htmlspecialchars($t['username']) ?>):</h6>
-                                                <div class="p-3 bg-light border rounded">
-                                                    <?= nl2br(htmlspecialchars($t['message'])) ?>
-                                                </div>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label class="form-label fw-bold">Tu Respuesta:</label>
-                                                <textarea name="admin_reply" class="form-control" rows="5" required placeholder="Escribe tu respuesta aquí..."><?= htmlspecialchars($t['admin_reply'] ?? '') ?></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                            <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i> Guardar Respuesta</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
                         <?php endforeach; ?>
                         
                         <?php if (empty($tickets)): ?>

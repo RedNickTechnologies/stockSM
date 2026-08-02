@@ -17,15 +17,22 @@ class TicketController {
     public function adminIndex() {
         if ($_SESSION['role'] !== 'admin') die("No autorizado");
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'reply') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) die("CSRF Token Invalid");
             
-            $ticket_id = $_POST['ticket_id'];
-            $reply = $_POST['reply'];
-            
-            $stmt = $this->conn->prepare("UPDATE tickets SET admin_reply = ?, status = 'answered' WHERE id = ?");
-            $stmt->execute([$reply, $ticket_id]);
-            log_audit($this->conn, $_SESSION['user_id'], 'REPLY_TICKET', "Respondió ticket #$ticket_id");
+            if ($_POST['action'] === 'reply_ticket') {
+                $ticket_id = $_POST['ticket_id'];
+                $reply = $_POST['admin_reply'];
+                
+                $stmt = $this->conn->prepare("UPDATE tickets SET admin_reply = ?, status = 'answered' WHERE id = ?");
+                $stmt->execute([$reply, $ticket_id]);
+                log_audit($this->conn, $_SESSION['user_id'], 'REPLY_TICKET', "Respondió ticket #$ticket_id");
+            } elseif ($_POST['action'] === 'close_ticket') {
+                $ticket_id = $_POST['ticket_id'];
+                $stmt = $this->conn->prepare("UPDATE tickets SET status = 'closed' WHERE id = ?");
+                $stmt->execute([$ticket_id]);
+                log_audit($this->conn, $_SESSION['user_id'], 'CLOSE_TICKET', "Cerró ticket #$ticket_id");
+            }
             header("Location: index.php?page=admin_tickets");
             exit;
         }

@@ -33,9 +33,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="index.php?page=admin_dashboard">Dashboard</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php?page=admin_logistics">Logística</a>
-                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link" href="index.php?page=admin_fleet">Flota y Gastos</a>
                     </li>
