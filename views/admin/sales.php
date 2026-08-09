@@ -11,6 +11,7 @@
                             <th>Vendedor</th>
                             <th>Fecha</th>
                             <th>Monto Total</th>
+                            <th>Tipo Entrega</th>
                             <th>Estado</th>
                             <th class="text-end">Acciones</th>
                         </tr>
@@ -22,6 +23,13 @@
                             <td><?= htmlspecialchars($s['username']) ?></td>
                             <td><?= $s['created_at'] ?></td>
                             <td class="fw-bold">$<?= number_format($s['total'], 2) ?></td>
+                            <td>
+                                <?php if($s['delivery_type'] === 'transport'): ?>
+                                    <span class="badge bg-info text-dark"><i class="bi bi-truck"></i> Envío Transporte</span>
+                                <?php else: ?>
+                                    <span class="badge bg-secondary"><i class="bi bi-shop"></i> Venta Directa</span>
+                                <?php endif; ?>
+                            </td>
                             <td>
                                 <?php if($s['status'] === 'pending'): ?>
                                     <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Pendiente</span>
@@ -36,13 +44,27 @@
                                     <i class="bi bi-file-earmark-pdf"></i> PDF
                                 </a>
                                 <?php if($s['status'] === 'pending'): ?>
-                                    <form action="index.php?page=admin_sales" method="POST" class="d-inline">
+                                    <form action="index.php?page=admin_sales" method="POST" class="d-inline mb-1">
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                         <input type="hidden" name="action" value="approve">
                                         <input type="hidden" name="sale_id" value="<?= $s['id'] ?>">
-                                        <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('¿Aprobar factura y descontar el stock de los productos?');">
-                                            <i class="bi bi-check-lg"></i>
-                                        </button>
+                                        <?php if($s['delivery_type'] === 'transport'): ?>
+                                            <div class="input-group input-group-sm mb-1" style="max-width: 250px;">
+                                                <select name="transporter_id" class="form-select" required>
+                                                    <option value="">Asignar a...</option>
+                                                    <?php foreach($transporters as $t): ?>
+                                                        <option value="<?= $t['id'] ?>"><?= htmlspecialchars($t['username']) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                                <button type="submit" class="btn btn-success" onclick="return confirm('¿Aprobar factura y asignar transportista?');">
+                                                    <i class="bi bi-check-lg"></i> Aprobar
+                                                </button>
+                                            </div>
+                                        <?php else: ?>
+                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('¿Aprobar factura de venta directa?');">
+                                                <i class="bi bi-check-lg"></i> Aprobar
+                                            </button>
+                                        <?php endif; ?>
                                     </form>
                                     <form action="index.php?page=admin_sales" method="POST" class="d-inline">
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

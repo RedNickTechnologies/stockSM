@@ -74,6 +74,13 @@ class TransporterController {
                         $this->conn->prepare("UPDATE vehicles SET status = 'available' WHERE id = ?")->execute([$req['vehicle_id']]);
                     }
                 }
+            } elseif ($_POST['action'] === 'update_sale_status') {
+                $sale_id = $_POST['sale_id'];
+                $status = $_POST['transport_status'];
+                
+                $stmt = $this->conn->prepare("UPDATE sales SET transport_status = ? WHERE id = ? AND transporter_id = ?");
+                $stmt->execute([$status, $sale_id, $_SESSION['user_id']]);
+                log_audit($this->conn, $_SESSION['user_id'], 'UPDATE_TRANSPORT_SALE', "Actualizó estado de venta ID $sale_id a $status");
             }
             header("Location: index.php?page=transporter_dashboard");
             exit;
@@ -102,6 +109,10 @@ class TransporterController {
 
         $veh_stmt = $this->conn->query("SELECT * FROM vehicles WHERE status = 'available'");
         $available_vehicles = $veh_stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $sales_stmt = $this->conn->prepare("SELECT s.*, u.username as seller_name FROM sales s JOIN users u ON s.user_id = u.id WHERE s.transporter_id = ? AND s.delivery_type = 'transport' ORDER BY s.id DESC");
+        $sales_stmt->execute([$_SESSION['user_id']]);
+        $assigned_sales = $sales_stmt->fetchAll(PDO::FETCH_ASSOC);
 
         require_once 'views/layout/header.php';
         require_once 'views/transporter/dashboard.php';

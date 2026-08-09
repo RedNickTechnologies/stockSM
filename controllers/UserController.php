@@ -6,7 +6,7 @@ class UserController {
     private $conn;
 
     public function __construct() {
-        if (!isset($_SESSION['user_id'])) {
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'user') {
             header("Location: index.php?page=login");
             exit;
         }
@@ -79,6 +79,7 @@ class UserController {
             }
             $products_req = $_POST['products'] ?? [];
             $quantities_req = $_POST['quantities'] ?? [];
+            $delivery_type = $_POST['delivery_type'] ?? 'direct';
             
             if (empty($products_req)) {
                 $error = "Debe seleccionar al menos un producto.";
@@ -86,8 +87,8 @@ class UserController {
                 try {
                     $this->conn->beginTransaction();
                     
-                    $stmt = $this->conn->prepare("INSERT INTO sales (user_id, total, status) VALUES (?, 0, 'pending')");
-                    $stmt->execute([$_SESSION['user_id']]);
+                    $stmt = $this->conn->prepare("INSERT INTO sales (user_id, total, status, delivery_type) VALUES (?, 0, 'pending', ?)");
+                    $stmt->execute([$_SESSION['user_id'], $delivery_type]);
                     $sale_id = $this->conn->lastInsertId();
                     
                     $total = 0;

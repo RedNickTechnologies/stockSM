@@ -6,9 +6,11 @@ class AdminController {
     private $conn;
 
     public function __construct() {
-        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-            header("Location: index.php?page=login");
-            exit;
+        if (php_sapi_name() !== 'cli') {
+            if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+                header("Location: index.php?page=login");
+                exit;
+            }
         }
         $database = new Database();
         $this->conn = $database->getConnection();
@@ -183,12 +185,21 @@ class AdminController {
              if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
                 die("CSRF Token Invalid");
             }
-            $sale_id = (int)$_POST['sale_id'];
             if ($_POST['action'] === 'approve') {
+                $sale_id = $_POST['sale_id'];
+                $transporter_id = !empty($_POST['transporter_id']) ? $_POST['transporter_id'] : null;
+                
                 try {
                     $this->conn->beginTransaction();
-                    $stmt = $this->conn->prepare("UPDATE sales SET status = 'approved' WHERE id = ? AND status = 'pending'");
-                    $stmt->execute([$sale_id]);
+                    
+                    if ($transporter_id) {
+                        $stmt = $this->conn->prepare("UPDATE sales SET status = 'approved', transporter_id = ?, transport_status = 'pending' WHERE id = ? AND status = 'pending'");
+                        $stmt->execute([$transporter_id, $sale_id]);
+                    } else {
+                        $stmt = $this->conn->prepare("UPDATE sales SET status = 'approved' WHERE id = ? AND status = 'pending'");
+                        $stmt->execute([$sale_id]);
+                    }
+                    
                     if ($stmt->rowCount() > 0) {
                         $details_stmt = $this->conn->prepare("SELECT product_id, quantity FROM sale_details WHERE sale_id = ?");
                         $details_stmt->execute([$sale_id]);
@@ -204,6 +215,7 @@ class AdminController {
                     $this->conn->rollBack();
                 }
             } elseif ($_POST['action'] === 'reject') {
+                $sale_id = (int)$_POST['sale_id'];
                 $stmt = $this->conn->prepare("UPDATE sales SET status = 'rejected' WHERE id = ?");
                 $stmt->execute([$sale_id]);
                 log_audit($this->conn, $_SESSION['user_id'], 'REJECT_SALE', "Rechazó venta ID: $sale_id");
@@ -214,6 +226,9 @@ class AdminController {
 
         $stmt = $this->conn->query("SELECT s.*, u.username FROM sales s JOIN users u ON s.user_id = u.id ORDER BY s.id DESC");
         $sales = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $t_stmt = $this->conn->query("SELECT id, username FROM users WHERE role = 'transporter' AND is_active = 1");
+        $transporters = $t_stmt->fetchAll(PDO::FETCH_ASSOC);
 
         require_once 'views/layout/header.php';
         require_once 'views/admin/sales.php';
@@ -425,42 +440,83 @@ class AdminController {
         require_once 'views/admin/pdf_vehicles.php';
     }
 
-    public function monthlyReports() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'generate') {
+    public function generateMonthlyReportData($month, $year) {
+        $stmt = $this->conn->prepare("SELECT id FROM company_monthly_reports WHERE month = ? AND year = ?");
+        $stmt->execute([$month, $year]);
+        if (!$stmt->fetch()) {
+            $sales_stmt = $this->conn->prepare("SELECT SUM(total) as amount, COUNT(id) as count FROM sales WHERE status = 'approved' AND MONTH(created_at) = ? AND YEAR(created_at) = ?");
+            $sales_stmt->execute([$month, $year]);
+            $sales = $sales_stmt->fetch(PDO::FETCH_ASSOC);
+            $total_amount = $sales['amount'] ?: 0;
+            $total_count = $sales['count'] ?: 0;
+
+            $users_stmt = $this->conn->prepare("SELECT COUNT(id) FROM users WHERE MONTH(created_at) = ? AND YEAR(created_at) = ?");
+            $users_stmt->execute([$month, $year]);
+            $new_users = $users_stmt->fetchColumn() ?: 0;
+
+            $exp_stmt = $this->conn->prepare("SELECT SUM(estimated_cost) FROM vehicle_requests WHERE status IN ('approved', 'completed') AND is_own_vehicle = 1 AND MONTH(created_at) = ? AND YEAR(created_at) = ?");
+            $exp_stmt->execute([$month, $year]);
+            $total_expenses = $exp_stmt->fetchColumn() ?: 0;
+
+            $ins = $this->conn->prepare("INSERT INTO company_monthly_reports (month, year, total_sales_amount, total_sales_count, new_users_count, total_expenses) VALUES (?, ?, ?, ?, ?, ?)");
+            $ins->execute([$month, $year, $total_amount, $total_count, $new_users, $total_expenses]);
+            log_audit($this->conn, $_SESSION['user_id'] ?? 0, 'GENERATE_REPORT', "Generó reporte mensual de $month/$year");
+        }
+    }
+
+    public function settings() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_arca_settings') {
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) die("CSRF Token Invalid");
-
-            $month = (int)date('m');
-            $year = (int)date('Y');
-
-            // Check if already exists
-            $stmt = $this->conn->prepare("SELECT id FROM company_monthly_reports WHERE month = ? AND year = ?");
-            $stmt->execute([$month, $year]);
-            if (!$stmt->fetch()) {
-                // Calculate metrics
-                $sales_stmt = $this->conn->prepare("SELECT SUM(total) as amount, COUNT(id) as count FROM sales WHERE status = 'approved' AND MONTH(created_at) = ? AND YEAR(created_at) = ?");
-                $sales_stmt->execute([$month, $year]);
-                $sales = $sales_stmt->fetch(PDO::FETCH_ASSOC);
-                $total_amount = $sales['amount'] ?: 0;
-                $total_count = $sales['count'] ?: 0;
-
-                $users_stmt = $this->conn->prepare("SELECT COUNT(id) FROM users WHERE MONTH(created_at) = ? AND YEAR(created_at) = ?");
-                $users_stmt->execute([$month, $year]);
-                $new_users = $users_stmt->fetchColumn() ?: 0;
-
-                $exp_stmt = $this->conn->prepare("SELECT SUM(estimated_cost) FROM vehicle_requests WHERE status IN ('approved', 'completed') AND is_own_vehicle = 1 AND MONTH(created_at) = ? AND YEAR(created_at) = ?");
-                $exp_stmt->execute([$month, $year]);
-                $total_expenses = $exp_stmt->fetchColumn() ?: 0;
-
-                $ins = $this->conn->prepare("INSERT INTO company_monthly_reports (month, year, total_sales_amount, total_sales_count, new_users_count, total_expenses) VALUES (?, ?, ?, ?, ?, ?)");
-                $ins->execute([$month, $year, $total_amount, $total_count, $new_users, $total_expenses]);
-                log_audit($this->conn, $_SESSION['user_id'], 'GENERATE_REPORT', "Generó reporte mensual de $month/$year");
+            
+            $keys = ['company_name', 'company_address', 'company_cuit', 'company_vat', 'company_iibb', 'company_start_date'];
+            $stmt = $this->conn->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+            
+            foreach ($keys as $key) {
+                if (isset($_POST[$key])) {
+                    $val = trim($_POST[$key]);
+                    $stmt->execute([$key, $val, $val]);
+                }
             }
-            header("Location: index.php?page=admin_reports");
+            log_audit($this->conn, $_SESSION['user_id'], 'UPDATE_SETTINGS', "Actualizó configuración de ARCA/Facturación");
+            header("Location: index.php?page=admin_settings&success=1");
             exit;
+        }
+
+        $stmt = $this->conn->query("SELECT * FROM settings");
+        $all_settings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+        require_once 'views/layout/header.php';
+        require_once 'views/admin/settings.php';
+        require_once 'views/layout/footer.php';
+    }
+
+    public function monthlyReports() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) die("CSRF Token Invalid");
+            
+            if ($_POST['action'] === 'generate') {
+                $month = (int)date('m');
+                $year = (int)date('Y');
+                $this->generateMonthlyReportData($month, $year);
+                header("Location: index.php?page=admin_reports&success=report_generated");
+                exit;
+            } elseif ($_POST['action'] === 'save_settings') {
+                $day = (int)$_POST['auto_report_day'];
+                if ($day >= 1 && $day <= 28) {
+                    $stmt = $this->conn->prepare("INSERT INTO settings (setting_key, setting_value) VALUES ('auto_report_day', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+                    $stmt->execute([$day, $day]);
+                    log_audit($this->conn, $_SESSION['user_id'], 'UPDATE_SETTINGS', "Actualizó día de reporte automático a $day");
+                }
+                header("Location: index.php?page=admin_reports&success=settings_saved");
+                exit;
+            }
         }
 
         $stmt = $this->conn->query("SELECT * FROM company_monthly_reports ORDER BY year DESC, month DESC");
         $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $set_stmt = $this->conn->query("SELECT setting_value FROM settings WHERE setting_key = 'auto_report_day'");
+        $auto_report_day = $set_stmt->fetchColumn() ?: 1;
 
         require_once 'views/layout/header.php';
         require_once 'views/admin/reports.php';

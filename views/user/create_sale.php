@@ -37,6 +37,18 @@
                     <button type="button" class="btn btn-secondary btn-sm" id="addLineBtn"><i class="bi bi-plus"></i> Agregar Otro Producto</button>
                 </div>
 
+                <div class="mb-4 p-3 border rounded bg-light">
+                    <h5 class="mb-3"><i class="bi bi-truck"></i> Método de Entrega</h5>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="delivery_type" id="deliveryDirect" value="direct" checked>
+                        <label class="form-check-label" for="deliveryDirect">Venta Directa (Entrega inmediata)</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="delivery_type" id="deliveryTransport" value="transport">
+                        <label class="form-check-label" for="deliveryTransport">Enviar vía Transporte</label>
+                    </div>
+                </div>
+
                 <div class="d-flex justify-content-between align-items-center bg-light p-3 border rounded">
                     <h4 class="mb-0 text-success fw-bold">Total Estimado: $<span id="totalDisplay">0.00</span></h4>
                     <button type="submit" class="btn btn-success btn-lg"><i class="bi bi-send"></i> Enviar Factura a Validación</button>

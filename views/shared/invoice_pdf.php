@@ -201,13 +201,10 @@
     <!-- Top Header -->
     <div class="afip-border header-box">
         <div class="header-left">
-            <div class="company-name">SUPERMARKET</div>
+            <div class="company-name"><?= htmlspecialchars($settings['company_name'] ?? 'Empresa Genérica') ?></div>
             <div class="company-details">
-                Nombre y Apellido<br>
-                Avenida Falsa 123<br>
-                (1000) Capital Federal - Buenos Aires<br>
-                (011) 4567-8900<br>
-                <strong>Responsable Monotributo</strong>
+                <?= htmlspecialchars($settings['company_address'] ?? 'Dirección No Configurada') ?><br>
+                <strong><?= htmlspecialchars($settings['company_vat'] ?? 'Condición IVA No Configurada') ?></strong>
             </div>
         </div>
         
@@ -222,9 +219,9 @@
             <div class="invoice-details">
                 N° 0001-<?= str_pad($sale['id'], 8, '0', STR_PAD_LEFT) ?><br>
                 Fecha de Emisión: <?= date('d/m/Y', strtotime($sale['created_at'])) ?><br><br>
-                CUIT: 30-12345678-9<br>
-                Ingresos Brutos: 30-12345678-9<br>
-                Inicio de Actividades: 01/01/2020
+                CUIT: <?= htmlspecialchars($settings['company_cuit'] ?? '00-00000000-0') ?><br>
+                Ingresos Brutos: <?= htmlspecialchars($settings['company_iibb'] ?? 'No Configurado') ?><br>
+                Inicio de Actividades: <?= htmlspecialchars($settings['company_start_date'] ?? 'No Configurado') ?>
             </div>
         </div>
     </div>

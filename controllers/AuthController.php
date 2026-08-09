@@ -14,6 +14,10 @@ class AuthController {
         if (isset($_SESSION['user_id'])) {
             if ($_SESSION['role'] === 'admin') {
                 header("Location: index.php?page=admin_dashboard");
+            } elseif ($_SESSION['role'] === 'transporter') {
+                header("Location: index.php?page=transporter_dashboard");
+            } elseif ($_SESSION['role'] === 'accountant') {
+                header("Location: index.php?page=accountant_dashboard");
             } else {
                 header("Location: index.php?page=user_dashboard");
             }
@@ -46,6 +50,10 @@ class AuthController {
 
                             if ($user['role'] === 'admin') {
                                 header("Location: index.php?page=admin_dashboard");
+                            } elseif ($user['role'] === 'transporter') {
+                                header("Location: index.php?page=transporter_dashboard");
+                            } elseif ($user['role'] === 'accountant') {
+                                header("Location: index.php?page=accountant_dashboard");
                             } else {
                                 header("Location: index.php?page=user_dashboard");
                             }

@@ -14,6 +14,35 @@
         <i class="bi bi-info-circle"></i> Los reportes mensuales realizan una captura del estado de ventas, altas de usuarios y gastos logísticos para el mes actual. Si ya se ha generado un reporte para este mes, no se duplicará.
     </div>
 
+    <!-- Configuración Automática -->
+    <div class="card shadow-sm mb-4 border-primary">
+        <div class="card-body bg-light">
+            <form action="index.php?page=admin_reports" method="POST" class="row align-items-center">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="action" value="save_settings">
+                <div class="col-auto">
+                    <label for="auto_report_day" class="col-form-label fw-bold"><i class="bi bi-robot"></i> Generación Automática:</label>
+                </div>
+                <div class="col-auto">
+                    <div class="input-group">
+                        <span class="input-group-text">Día del mes</span>
+                        <select name="auto_report_day" id="auto_report_day" class="form-select" style="max-width: 100px;">
+                            <?php for($i=1; $i<=28; $i++): ?>
+                                <option value="<?= $i ?>" <?= $auto_report_day == $i ? 'selected' : '' ?>><?= $i ?></option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-outline-primary">Guardar Configuración</button>
+                </div>
+                <div class="col-12 mt-2 text-muted small">
+                    El sistema generará el reporte de forma automática a primera hora de este día cada mes.
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">

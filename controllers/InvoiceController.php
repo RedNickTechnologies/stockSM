@@ -46,6 +46,9 @@ class InvoiceController {
         $d_stmt->execute([$sale_id]);
         $details = $d_stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        $s_stmt = $this->conn->query("SELECT * FROM settings");
+        $settings = $s_stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
         require_once 'views/shared/invoice_pdf.php';
     }
 

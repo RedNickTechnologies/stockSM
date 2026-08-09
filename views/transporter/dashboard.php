@@ -126,6 +126,73 @@
         </div>
     </div>
 
+    <!-- Cargas Asignadas (Ventas) -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-box-seam"></i> Cargas Asignadas (Ventas a Clientes)</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>N° Venta</th>
+                            <th>Vendedor</th>
+                            <th>Monto</th>
+                            <th>Fecha Asignación</th>
+                            <th>Estado Actual</th>
+                            <th class="text-end">Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($assigned_sales as $s): ?>
+                        <tr>
+                            <td class="fw-bold">#<?= str_pad($s['id'], 6, '0', STR_PAD_LEFT) ?></td>
+                            <td><?= htmlspecialchars($s['seller_name']) ?></td>
+                            <td>$<?= number_format($s['total'], 2) ?></td>
+                            <td><?= date('d/m/Y H:i', strtotime($s['created_at'])) ?></td>
+                            <td>
+                                <?php if($s['transport_status'] === 'pending'): ?>
+                                    <span class="badge bg-warning text-dark">Pendiente de Acción</span>
+                                <?php elseif($s['transport_status'] === 'accepted'): ?>
+                                    <span class="badge bg-info text-dark">Carga Aceptada</span>
+                                <?php elseif($s['transport_status'] === 'in_transit'): ?>
+                                    <span class="badge bg-primary">En Tránsito</span>
+                                <?php elseif($s['transport_status'] === 'delivered'): ?>
+                                    <span class="badge bg-success">Entregada</span>
+                                <?php else: ?>
+                                    <span class="badge bg-danger">Rechazada</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-end">
+                                <a href="index.php?page=view_invoice&id=<?= $s['id'] ?>" target="_blank" class="btn btn-sm btn-outline-danger"><i class="bi bi-file-earmark-pdf"></i> Ver Factura</a>
+                                
+                                <?php if(in_array($s['transport_status'], ['pending', 'accepted', 'in_transit'])): ?>
+                                    <form action="index.php?page=transporter_dashboard" method="POST" class="d-inline ms-1">
+                                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                        <input type="hidden" name="action" value="update_sale_status">
+                                        <input type="hidden" name="sale_id" value="<?= $s['id'] ?>">
+                                        <select name="transport_status" class="form-select form-select-sm d-inline-block w-auto" required onchange="if(confirm('¿Confirmar cambio de estado?')) this.form.submit(); else this.selectedIndex = 0;">
+                                            <option value="">Actualizar Estado...</option>
+                                            <option value="accepted">Aceptar Carga</option>
+                                            <option value="in_transit">En Tránsito</option>
+                                            <option value="delivered">Entregada (Finalizar)</option>
+                                            <option value="rejected">Rechazar Carga</option>
+                                        </select>
+                                    </form>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                        <?php if(empty($assigned_sales)): ?>
+                            <tr><td colspan="6" class="text-center text-muted">No tienes cargas de ventas asignadas por el momento.</td></tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Tus Solicitudes de Ingreso de Mercadería</h5>

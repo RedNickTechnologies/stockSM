@@ -138,6 +138,7 @@ function is_active($page_name, $current_page) {
                 <li><a class="nav-link <?= is_active('admin_sales', $current_page) ?>" href="index.php?page=admin_sales"><i class="bi bi-receipt me-2"></i> Ventas</a></li>
                 <li><a class="nav-link <?= is_active('admin_ddjj', $current_page) ?>" href="index.php?page=admin_ddjj"><i class="bi bi-file-earmark-bar-graph me-2"></i> Balances (DDJJ)</a></li>
                 <li><a class="nav-link <?= is_active('admin_reports', $current_page) ?>" href="index.php?page=admin_reports"><i class="bi bi-graph-up me-2"></i> Reportes</a></li>
+                <li><a class="nav-link <?= is_active('admin_settings', $current_page) ?>" href="index.php?page=admin_settings"><i class="bi bi-gear me-2"></i> Configuración (ARCA)</a></li>
                 <li><a class="nav-link <?= is_active('admin_audit', $current_page) ?>" href="index.php?page=admin_audit"><i class="bi bi-shield-check me-2"></i> Auditoría / Logs</a></li>
                 <li><a class="nav-link <?= is_active('admin_tickets', $current_page) ?>" href="index.php?page=admin_tickets"><i class="bi bi-headset me-2"></i> Tickets (Soporte)</a></li>
             <?php elseif ($_SESSION['role'] === 'transporter'): ?>
