@@ -137,22 +137,26 @@ function is_active($page_name, $current_page) {
                 <li><a class="nav-link <?= is_active('admin_products', $current_page) ?>" href="index.php?page=admin_products"><i class="bi bi-box-seam me-2"></i> Productos</a></li>
                 <li><a class="nav-link <?= is_active('admin_sales', $current_page) ?>" href="index.php?page=admin_sales"><i class="bi bi-receipt me-2"></i> Ventas</a></li>
                 <li><a class="nav-link <?= is_active('admin_ddjj', $current_page) ?>" href="index.php?page=admin_ddjj"><i class="bi bi-file-earmark-bar-graph me-2"></i> Balances (DDJJ)</a></li>
+                <li><a class="nav-link <?= is_active('admin_salaries', $current_page) ?>" href="index.php?page=admin_salaries"><i class="bi bi-cash-coin me-2"></i> Sueldos (RRHH)</a></li>
                 <li><a class="nav-link <?= is_active('admin_reports', $current_page) ?>" href="index.php?page=admin_reports"><i class="bi bi-graph-up me-2"></i> Reportes</a></li>
                 <li><a class="nav-link <?= is_active('admin_settings', $current_page) ?>" href="index.php?page=admin_settings"><i class="bi bi-gear me-2"></i> Configuración (ARCA)</a></li>
                 <li><a class="nav-link <?= is_active('admin_audit', $current_page) ?>" href="index.php?page=admin_audit"><i class="bi bi-shield-check me-2"></i> Auditoría / Logs</a></li>
                 <li><a class="nav-link <?= is_active('admin_tickets', $current_page) ?>" href="index.php?page=admin_tickets"><i class="bi bi-headset me-2"></i> Tickets (Soporte)</a></li>
             <?php elseif ($_SESSION['role'] === 'transporter'): ?>
-                <li><a class="nav-link <?= is_active('transporter_dashboard', $current_page) ?>" href="index.php?page=transporter_dashboard"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
+                <li><a class="nav-link <?= is_active('transporter_dashboard', $current_page) ?>" href="index.php?page=transporter_dashboard"><i class="bi bi-speedometer2 me-2"></i> Panel Chofer</a></li>
                 <li><a class="nav-link <?= is_active('transporter_tickets', $current_page) ?>" href="index.php?page=transporter_tickets"><i class="bi bi-headset me-2"></i> Soporte</a></li>
+                <li><a class="nav-link <?= is_active('my_salaries', $current_page) ?>" href="index.php?page=my_salaries"><i class="bi bi-wallet2 me-2"></i> Mis Liquidaciones</a></li>
             <?php elseif ($_SESSION['role'] === 'accountant'): ?>
                 <li><a class="nav-link <?= is_active('accountant_dashboard', $current_page) ?>" href="index.php?page=accountant_dashboard"><i class="bi bi-speedometer2 me-2"></i> Dashboard Contador</a></li>
-                <li><a class="nav-link <?= is_active('accountant_sales', $current_page) ?>" href="index.php?page=accountant_sales"><i class="bi bi-receipt me-2"></i> Ventas y ARCA</a></li>
-                <li><a class="nav-link <?= is_active('accountant_ddjj', $current_page) ?>" href="index.php?page=accountant_ddjj"><i class="bi bi-file-earmark-bar-graph me-2"></i> Balances / DDJJ</a></li>
+                <li><a class="nav-link <?= is_active('accountant_sales', $current_page) ?>" href="index.php?page=accountant_sales"><i class="bi bi-receipt me-2"></i> Facturación</a></li>
+                <li><a class="nav-link <?= is_active('accountant_ddjj', $current_page) ?>" href="index.php?page=accountant_ddjj"><i class="bi bi-file-earmark-bar-graph me-2"></i> DDJJ Mensual</a></li>
+                <li><a class="nav-link <?= is_active('my_salaries', $current_page) ?>" href="index.php?page=my_salaries"><i class="bi bi-wallet2 me-2"></i> Mis Liquidaciones</a></li>
             <?php else: ?>
                 <li><a class="nav-link <?= is_active('user_dashboard', $current_page) ?>" href="index.php?page=user_dashboard"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
                 <li><a class="nav-link <?= is_active('user_sale', $current_page) ?>" href="index.php?page=user_sale"><i class="bi bi-cart-plus me-2"></i> Nueva Venta</a></li>
-                <li><a class="nav-link <?= is_active('user_products', $current_page) ?>" href="index.php?page=user_products"><i class="bi bi-box-seam me-2"></i> Catálogo</a></li>
+                <li><a class="nav-link <?= is_active('user_products', $current_page) ?>" href="index.php?page=user_products"><i class="bi bi-box-seam me-2"></i> Ver Productos</a></li>
                 <li><a class="nav-link <?= is_active('user_tickets', $current_page) ?>" href="index.php?page=user_tickets"><i class="bi bi-headset me-2"></i> Soporte</a></li>
+                <li><a class="nav-link <?= is_active('my_salaries', $current_page) ?>" href="index.php?page=my_salaries"><i class="bi bi-wallet2 me-2"></i> Mis Liquidaciones</a></li>
             <?php endif; ?>
         </ul>
 

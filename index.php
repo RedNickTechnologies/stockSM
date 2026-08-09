@@ -8,12 +8,13 @@ $page = isset($_GET['page']) ? filter_var($_GET['page'], FILTER_SANITIZE_STRING)
 // Lista blanca de páginas permitidas
 $allowed_pages = [
     'login', 'logout', 
-    'admin_dashboard', 'admin_users', 'admin_products', 'admin_sales', 'admin_audit', 'admin_tickets', 'admin_logistics', 'admin_fleet', 'admin_ddjj', 'admin_reports', 'admin_settings',
+    'admin_dashboard', 'admin_users', 'admin_products', 'admin_sales', 'admin_audit', 'admin_tickets', 'admin_logistics', 'admin_fleet', 'admin_ddjj', 'admin_reports', 'admin_settings', 'admin_salaries',
     'export_products_pdf', 'export_users_pdf', 'export_audit_pdf', 'export_vehicles_pdf',
     'user_dashboard', 'user_sale', 'user_products', 'user_tickets',
     'transporter_dashboard', 'transporter_tickets',
     'accountant_dashboard', 'accountant_sales', 'accountant_ddjj',
-    'view_invoice', 'view_transfer_pdf', 'view_transporter_stock',
+    'view_invoice', 'view_transfer_pdf', 'view_transporter_stock', 'view_salary_pdf',
+    'my_salaries',
     'mark_notifications_read'
 ];
 
@@ -39,12 +40,12 @@ switch ($page) {
     case 'admin_products':
     case 'admin_sales':
     case 'admin_audit':
-    case 'admin_tickets':
     case 'admin_logistics':
     case 'admin_fleet':
     case 'admin_ddjj':
     case 'admin_reports':
     case 'admin_settings':
+    case 'admin_salaries':
     case 'export_products_pdf':
     case 'export_users_pdf':
     case 'export_audit_pdf':
@@ -56,10 +57,16 @@ switch ($page) {
         elseif ($page == 'admin_products') $controller->products();
         elseif ($page == 'admin_sales') $controller->sales();
         elseif ($page == 'admin_audit') $controller->auditLogs();
+        elseif ($page == 'admin_logistics') $controller->logistics();
         elseif ($page == 'admin_fleet') $controller->fleet();
         elseif ($page == 'admin_ddjj') $controller->ddjj();
         elseif ($page == 'admin_reports') $controller->monthlyReports();
         elseif ($page == 'admin_settings') $controller->settings();
+        elseif ($page == 'admin_salaries') {
+            require_once 'controllers/SalaryController.php';
+            $salController = new SalaryController();
+            $salController->adminIndex();
+        }
         elseif ($page == 'export_products_pdf') $controller->exportProductsPDF();
         elseif ($page == 'export_users_pdf') $controller->exportUsersPDF();
         elseif ($page == 'export_audit_pdf') $controller->exportAuditPDF();
@@ -95,6 +102,15 @@ switch ($page) {
         $controller = new TicketController();
         if ($page == 'admin_tickets') $controller->adminIndex();
         else $controller->userIndex();
+        break;
+
+    case 'my_salaries':
+    case 'view_salary_pdf':
+        require_once 'controllers/SalaryController.php';
+        $controller = new SalaryController();
+        if ($page == 'admin_salaries') $controller->adminIndex();
+        elseif ($page == 'my_salaries') $controller->userIndex();
+        elseif ($page == 'view_salary_pdf') $controller->viewPdf();
         break;
 
     case 'transporter_dashboard':
