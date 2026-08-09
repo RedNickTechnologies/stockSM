@@ -69,6 +69,10 @@ class UserController {
     }
 
     public function createSale() {
+        if ($_SESSION['role'] === 'transporter') {
+            die("Acceso denegado. Los transportistas no pueden realizar ventas.");
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
              if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
                 die("CSRF Token Invalid");

@@ -61,8 +61,20 @@ class AdminController {
                 $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
                 $role = $_POST['role'];
                 $monthly_goal = $_POST['monthly_goal'] ?? 0;
-                $stmt = $this->conn->prepare("INSERT INTO users (username, email, password_hash, role, monthly_goal) VALUES (?, ?, ?, ?, ?)");
-                $stmt->execute([$username, $email, $password, $role, $monthly_goal]);
+                
+                $avatar_url = null;
+                if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
+                    $upload_dir = 'public/uploads/users/';
+                    if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+                    $filename = time() . '_' . preg_replace("/[^a-zA-Z0-9\.]/", "", basename($_FILES['avatar']['name']));
+                    $target_file = $upload_dir . $filename;
+                    if (move_uploaded_file($_FILES['avatar']['tmp_name'], $target_file)) {
+                        $avatar_url = $target_file;
+                    }
+                }
+
+                $stmt = $this->conn->prepare("INSERT INTO users (username, email, password_hash, role, monthly_goal, avatar_url) VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$username, $email, $password, $role, $monthly_goal, $avatar_url]);
                 log_audit($this->conn, $_SESSION['user_id'], 'CREATE_USER', "Creó al usuario: $username con meta $$monthly_goal");
             } elseif ($_POST['action'] === 'edit_goal') {
                 $id = $_POST['user_id'];
@@ -121,9 +133,26 @@ class AdminController {
                 $name = $_POST['name'];
                 $price = $_POST['price'];
                 $stock = $_POST['stock'];
+                
+                $image_sql = "";
+                $params = [$name, $price, $stock];
 
-                $stmt = $this->conn->prepare("UPDATE products SET name = ?, price = ?, stock = ? WHERE id = ?");
-                $stmt->execute([$name, $price, $stock, $id]);
+                if (!empty($_FILES['image_file']['name'])) {
+                    $target_dir = "public/uploads/";
+                    if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
+                    $file_extension = pathinfo($_FILES["image_file"]["name"], PATHINFO_EXTENSION);
+                    $file_name = uniqid() . '.' . $file_extension;
+                    $target_file = $target_dir . $file_name;
+                    if (move_uploaded_file($_FILES["image_file"]["tmp_name"], $target_file)) {
+                        $image_sql = ", image_url = ?";
+                        $params[] = $target_file;
+                    }
+                }
+
+                $params[] = $id;
+
+                $stmt = $this->conn->prepare("UPDATE products SET name = ?, price = ?, stock = ? $image_sql WHERE id = ?");
+                $stmt->execute($params);
                 log_audit($this->conn, $_SESSION['user_id'], 'EDIT_PRODUCT', "Editó producto ID $id ($name)");
             } elseif ($_POST['action'] === 'delete_product') {
                 $id = $_POST['product_id'];

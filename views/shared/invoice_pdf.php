@@ -29,9 +29,14 @@
             position: relative;
             min-height: 140px;
         }
-        .header-left, .header-right {
+        .header-left {
             width: 50%;
             padding: 15px;
+            border-right: 1px solid #000;
+        }
+        .header-right {
+            width: 50%;
+            padding: 15px 15px 15px 50px;
         }
         .header-center {
             position: absolute;

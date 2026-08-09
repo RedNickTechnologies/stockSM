@@ -1,5 +1,4 @@
 <div class="container mt-4">
-    <h2>Mi Panel (Vendedor)</h2>
     <?php if (isset($_GET['success'])): ?>
     <div class="alert alert-success"><i class="bi bi-check-circle"></i> Factura enviada al administrador exitosamente.</div>
     <?php endif; ?>

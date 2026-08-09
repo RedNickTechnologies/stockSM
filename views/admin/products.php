@@ -80,7 +80,7 @@
                                 <div class="modal fade text-start" id="editProductModal<?= $p['id'] ?>" tabindex="-1">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
-                                            <form action="index.php?page=admin_products" method="POST">
+                                            <form action="index.php?page=admin_products" method="POST" enctype="multipart/form-data">
                                                 <div class="modal-header bg-primary text-white">
                                                     <h5 class="modal-title">Editar Producto #<?= $p['id'] ?></h5>
                                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -101,6 +101,10 @@
                                                     <div class="mb-3">
                                                         <label class="form-label">Stock Actual</label>
                                                         <input type="number" name="stock" class="form-control" value="<?= $p['stock'] ?>" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Cambiar Imagen Local</label>
+                                                        <input type="file" name="image_file" class="form-control" accept="image/*">
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">

@@ -26,6 +26,17 @@ class TicketController {
                 
                 $stmt = $this->conn->prepare("UPDATE tickets SET admin_reply = ?, status = 'answered' WHERE id = ?");
                 $stmt->execute([$reply, $ticket_id]);
+                
+                // Get user_id of the ticket
+                $stmt_usr = $this->conn->prepare("SELECT user_id FROM tickets WHERE id = ?");
+                $stmt_usr->execute([$ticket_id]);
+                $ticket_data = $stmt_usr->fetch(PDO::FETCH_ASSOC);
+                
+                if ($ticket_data) {
+                    $stmt_notif = $this->conn->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)");
+                    $stmt_notif->execute([$ticket_data['user_id'], "El administrador ha respondido a tu ticket #$ticket_id"]);
+                }
+
                 log_audit($this->conn, $_SESSION['user_id'], 'REPLY_TICKET', "Respondió ticket #$ticket_id");
             } elseif ($_POST['action'] === 'close_ticket') {
                 $ticket_id = $_POST['ticket_id'];

@@ -12,7 +12,8 @@ $allowed_pages = [
     'user_dashboard', 'user_sale', 'user_products', 'user_tickets',
     'transporter_dashboard', 'transporter_tickets',
     'accountant_dashboard', 'accountant_sales', 'accountant_ddjj',
-    'view_invoice', 'view_transfer_pdf', 'view_transporter_stock'
+    'view_invoice', 'view_transfer_pdf', 'view_transporter_stock',
+    'mark_notifications_read'
 ];
 
 if (!in_array($page, $allowed_pages)) {
@@ -114,6 +115,14 @@ switch ($page) {
         elseif ($page == 'accountant_sales') $controller->sales();
         elseif ($page == 'accountant_ddjj') $controller->ddjj();
         break;
+
+    case 'mark_notifications_read':
+        if (isset($_SESSION['user_id'])) {
+            $stmt = (new Database())->getConnection()->prepare("UPDATE notifications SET is_read = 1 WHERE user_id = ?");
+            $stmt->execute([$_SESSION['user_id']]);
+        }
+        header("Location: " . ($_SERVER['HTTP_REFERER'] ?? 'index.php'));
+        exit;
 
     default:
         echo "404 Not Found";

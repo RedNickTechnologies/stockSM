@@ -110,7 +110,7 @@
 <div class="modal fade" id="createUserModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="index.php?page=admin_users" method="POST">
+            <form action="index.php?page=admin_users" method="POST" enctype="multipart/form-data">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title">Registrar Nuevo Usuario</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -143,6 +143,10 @@
                     <div class="mb-3">
                         <label class="form-label">Meta Mensual de Ventas ($) (Opcional)</label>
                         <input type="number" step="0.01" name="monthly_goal" class="form-control" value="0.00">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Foto de Perfil (Opcional)</label>
+                        <input type="file" name="avatar" class="form-control" accept="image/*">
                     </div>
                 </div>
                 <div class="modal-footer">
